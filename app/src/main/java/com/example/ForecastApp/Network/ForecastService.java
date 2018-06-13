@@ -10,7 +10,7 @@ import retrofit2.http.Query;
 
 public interface ForecastService {
 
-    @GET(Constants.GET_FIVE_DAY_FORECAST)
-    Observable<Forecast> getFiveDayForecast(@Query("id") String id, @Query("APPID") String appId);
+    @GET(Constants.FIVE_FORECAST)
+    Observable<Forecast> FiveDayForecast(@Query("id") String id, @Query("APPID") String appId);
 
 }

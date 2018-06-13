@@ -15,10 +15,15 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 
 public class ActivityPresnter implements ActivityContract.Presenter{
+
+
     private final ForecastService forecastService;
     private final CompositeDisposable compositeDisposable;
     private final ActivityContract.View view;
     private final ForecastDatabase forecastDatabase;
+
+
+
 
     public ActivityPresnter(ForecastService forecastService, ForecastDatabase forecastDatabase,
                             ActivityContract.View view) {
@@ -29,10 +34,26 @@ public class ActivityPresnter implements ActivityContract.Presenter{
     }
 
 
+
+
+    private Observable<Forecast> ForecastFromDb() {
+        return forecastDatabase.forecastDao()
+                .getForecast()
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnComplete(this::handleNoData) //Maybe completes without emitting anything when the table is empty
+                .toObservable();
+    }
+
+    private Observable<Forecast> getForecastFromAPI() {
+        return forecastService.FiveDayForecast(Constants.ID_FOR_CITY, Constants.API_KEY)
+                .doOnNext(this::addToDb);
+    }
+
+
     @Override
-    public void getForecast(boolean isOnline) {
-        Observable<Forecast> observable = isOnline ? getForecastFromAPI() : getForecastFromDb();
-        compositeDisposable.add(observable
+    public void Forecast_Retrieval(boolean isOnline) {
+        Observable<Forecast> forecastObservable = isOnline ? getForecastFromAPI() : ForecastFromDb();
+        compositeDisposable.add(forecastObservable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(forecast -> view.setActivityTitle(forecast.city.name))
@@ -40,19 +61,6 @@ public class ActivityPresnter implements ActivityContract.Presenter{
                 .doOnSubscribe(disposable -> view.showProgress(true))
                 .doOnTerminate(() -> view.showProgress(false))
                 .subscribe(this::handleResult, view::showError));
-        }
-
-    private Observable<Forecast> getForecastFromDb() {
-        return forecastDatabase.forecastDao()
-                .getForecast()
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnComplete(this::handleEmptyDb) //Maybe completes without emitting anything when the table is empty
-                .toObservable();
-    }
-
-    private Observable<Forecast> getForecastFromAPI() {
-        return forecastService.getFiveDayForecast(Constants.CITY_ID, Constants.API_KEY)
-                .doOnNext(this::addToDb);
     }
 
     @Override
@@ -63,7 +71,7 @@ public class ActivityPresnter implements ActivityContract.Presenter{
         compositeDisposable.clear();
     }
 
-    private void handleEmptyDb() {
+    private void handleNoData() {
         handleResult(Collections.emptyList());
     }
 

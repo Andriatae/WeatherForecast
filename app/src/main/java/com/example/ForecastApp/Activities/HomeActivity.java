@@ -6,7 +6,9 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.ProgressBar;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,6 +37,9 @@ public class HomeActivity extends AppCompatActivity implements ActivityContract.
     ProgressBar progressBar;
     @BindView(R.id.tv_try_again)
     TextView tryAgain;
+    @BindView(R.id.switch2)
+    Switch f2c;
+    static Boolean switchState;
 
     @Inject
     ActivityContract.Presenter presenter;
@@ -44,15 +49,44 @@ public class HomeActivity extends AppCompatActivity implements ActivityContract.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+
         setContentView(R.layout.activity_home);
         DaggerActivityComponent.builder()
                 .appComponent(((App)getApplication()).getAppComponent())
                 .activityModule(new ActivityModule(this))
                 .build().inject(this);
         ButterKnife.bind(this);
+        switchState = f2c.isChecked();
+        f2c.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+
+
+                if(isChecked)
+                {
+
+                    forecastAdapter.changeToF();
+                    Toast.makeText(getApplicationContext(),"switch has been checked",Toast.LENGTH_SHORT);
+                    System.out.println("has been checked");
+
+                }
+
+                else{
+
+                    forecastAdapter.changeToC();
+
+                    System.out.println("button unclicked");
+
+
+                }
+            }
+        });
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(forecastAdapter);
-        presenter.getForecast(Utils.isOnline(this));
+        presenter.Forecast_Retrieval(Utils.isItLive(this));
     }
 
     @Override
@@ -89,7 +123,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityContract.
 
     @OnClick(R.id.tv_try_again)
     public void onTryAgainClicked() {
-        presenter.getForecast(Utils.isOnline(this));
+        presenter.Forecast_Retrieval(Utils.isItLive(this));
     }
 
     @Override

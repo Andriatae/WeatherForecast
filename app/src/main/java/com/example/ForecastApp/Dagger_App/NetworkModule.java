@@ -38,6 +38,8 @@ public class NetworkModule {
   @Provides
   @Singleton
   public OkHttpClient provideOkHttpClient(Cache cache) {
+
+
       return new OkHttpClient.Builder()
               .connectTimeout(CONNECTION_TIMEOUT, TimeUnit.SECONDS)
               .readTimeout(READ_TIMEOUT, TimeUnit.SECONDS)
@@ -47,9 +49,13 @@ public class NetworkModule {
 
   @Provides
   @Singleton
-  public Retrofit provideRetrofit(OkHttpClient okHttpClient) {
+  public Retrofit baseRetrofit(OkHttpClient okHttpClient) {
+
+
+    // returns base retrofit instance
+
         return new Retrofit.Builder()
-                .baseUrl(BASE_URL)
+                .baseUrl(MAIN_URL)
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(okHttpClient)

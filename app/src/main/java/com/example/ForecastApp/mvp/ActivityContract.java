@@ -18,7 +18,7 @@ public interface ActivityContract {
     }
 
     interface Presenter {
-        void getForecast(boolean isOnline);
+        void Forecast_Retrieval(boolean isOnline);
         void start();
         void stop();
     }

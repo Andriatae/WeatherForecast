@@ -10,6 +10,7 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import io.realm.Realm;
 
 @Module
 public class AppModule {
@@ -20,16 +21,25 @@ public class AppModule {
         this.app = app;
     }
 
+
+
+
     @Provides
+
     @Singleton
     public Context provideApplicationContext() {
         return app;
     }
+
+
+
 
     @Provides
     @Singleton
     public ForecastDatabase provideForecastDatabase(Context context) {
         return Room.databaseBuilder(context, ForecastDatabase.class, "forecast").build();
     }
+
+
 
 }

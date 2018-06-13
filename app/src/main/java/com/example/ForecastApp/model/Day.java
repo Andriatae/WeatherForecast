@@ -32,6 +32,17 @@ public class Day {
     @SerializedName("wind")
     @Expose
     public Wind wind;
+    public Boolean corf=false;
+
+    public Boolean getCorf() {
+        return corf;
+    }
+
+    public void setCorf(Boolean corf) {
+        this.corf = corf;
+    }
+
+
 
     public Day() {
     }
